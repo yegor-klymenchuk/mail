@@ -30,6 +30,16 @@ describe('UserService.cookieOptions domain', () => {
     expect(await cookieDomainFor(apiUri)).toBe(expected);
   });
 
+  it('scopes temporary-host sessions to the configured instance domain', async () => {
+    vi.stubEnv('COOKIE_DOMAIN', 'mail-2-31-24-4.sslip.io');
+    expect(await cookieDomainFor('https://api.mail-2-31-24-4.sslip.io')).toBe('.mail-2-31-24-4.sslip.io');
+  });
+
+  it('ignores a cookie domain that does not contain the API hostname', async () => {
+    vi.stubEnv('COOKIE_DOMAIN', 'another.example.com');
+    expect(await cookieDomainFor('https://api.example.com')).toBe('.example.com');
+  });
+
   it.each(['http://localhost:8080', 'http://127.0.0.1:8080'])('sets no domain for %s', async apiUri => {
     expect(await cookieDomainFor(apiUri)).toBeUndefined();
   });

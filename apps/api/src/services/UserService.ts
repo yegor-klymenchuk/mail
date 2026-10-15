@@ -25,6 +25,12 @@ function getCookieDomain(): string | undefined {
 
   try {
     const {hostname} = new URL(API_URI);
+    const configuredDomain = process.env.COOKIE_DOMAIN?.replace(/^\./, '').toLowerCase();
+
+    // Keep sessions scoped to this instance when using a shared temporary DNS service
+    if (configuredDomain && (hostname === configuredDomain || hostname.endsWith(`.${configuredDomain}`))) {
+      return `.${configuredDomain}`;
+    }
 
     // *.localhost is a reserved TLD, so share the cookie across all of it
     if (hostname.endsWith('.localhost')) {
